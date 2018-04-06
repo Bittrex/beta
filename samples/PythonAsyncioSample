@@ -39,7 +39,8 @@ async def on_message(msg):
 
 if __name__ == "__main__":
     # Create connection
-    connection = Connection('https://beta.bittrex.com/signalr')
+    # Users can optionally pass a session object to the client, e.g a cfscrape session to bypass cloudflare.
+    connection = Connection('https://beta.bittrex.com/signalr', session=None)
 
     # Register hub
     hub = connection.register_hub('c2')
