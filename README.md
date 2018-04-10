@@ -23,8 +23,8 @@ Below, users may find best practices for the most common API scenarios. By imple
 ### Obtaining Order and Balance Status
 Instead of polling the REST-based account and market APIs for open order and balance information, developers should use the WS API and subscribe to account-level data, detailed in [WS API Overview](#ws-api-overview).
 
-### Obtaining Ticker Data
-Many users poll the REST API as quickly as possible for updated ticker data. At very high call rates, the API most often returns the same data because we only update it **_once per second_**. By using the WS API’s `QueryExchangeState` and `SubscribeToExchangeDelta` functions, developers can get ticker data as soon as it is generated.
+### Tracking an Order Book
+Many users poll the REST API as quickly as possible for updated order data. At very high call rates, the API most often returns the same data because we only update it **_once per second_**. By using the WS API’s `QueryExchangeState` and `SubscribeToExchangeDeltas` functions, developers can maintain their own copies of one or more order books.
 
 
 
