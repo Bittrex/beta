@@ -205,6 +205,7 @@ Boolean indicating whether the user was subscribed to the feed.
 "E" = "Exchange"
 "e" = "ExchangeDeltaType"
 "F" = "FillType"
+"FI" = "FillId"
 "f" = "Fills"
 "G" = "OpenBuyOrders"
 "g" = "OpenSellOrders"
@@ -308,6 +309,7 @@ Boolean indicating whether the user was subscribed to the feed.
     Fills: 
     [
         {
+            FillId    : int,
             OrderType : string,
             Rate      : decimal,
             Quantity  : decimal,
