@@ -23,8 +23,8 @@ Below, users may find best practices for the most common API scenarios. By imple
 ### Obtaining Order and Balance Status
 Instead of polling the REST-based account and market APIs for open order and balance information, developers should use the WS API and subscribe to account-level data, detailed in [WS API Overview](#ws-api-overview).
 
-### Obtaining Ticker Data
-Many users poll the REST API as quickly as possible for updated ticker data. At very high call rates, the API most often returns the same data because we only update it **_once per second_**. By using the WS API’s `QueryExchangeState` and `SubscribeToExchangeDelta` functions, developers can get ticker data as soon as it is generated.
+### Tracking an Order Book
+Many users poll the REST API as quickly as possible for updated order data. At very high call rates, the API most often returns the same data because we only update it **_once per second_**. By using the WS API’s `QueryExchangeState` and `SubscribeToExchangeDeltas` functions, developers can maintain their own copies of one or more order books.
 
 
 
@@ -43,13 +43,12 @@ Type|Description
 `guid` | string-formatted UUID
 `int` | signed 32-bit integer
 `long` | signed 64-bit integer
-`string-enum` | list of valid string values
 
 ### Connecting
 The Beta WS API endpoint is https://beta.bittrex.com/signalr. Once connected, be sure to connect to the `c2` hub. No other hubs are supported for use by Bittrex customers.
 
 ### Response Handling
-All responses are compressed by the server using GZip and base64 encoded prior to transmission. Users must reverse this process to retrieve the JSON payload. Further, field keys in the response JSON are minified. [Appendix A](#appendix-a-minified-json-keys) contains a table of the keys and their un-minified counterparts.
+All responses are compressed by the server using GZip (via a 'deflate' API - there are no headers) and base64 encoded prior to transmission. Users must reverse this process to retrieve the JSON payload. Further, field keys in the response JSON are minified. [Appendix A](#appendix-a-minified-json-keys) contains a table of the keys and their un-minified counterparts.
 
 ### Subscribing to Account-Level Data
 Once connected, developers can obtain account-level data using the following steps:
@@ -206,6 +205,7 @@ Boolean indicating whether the user was subscribed to the feed.
 "E" = "Exchange"
 "e" = "ExchangeDeltaType"
 "F" = "FillType"
+"FI" = "FillId"
 "f" = "Fills"
 "G" = "OpenBuyOrders"
 "g" = "OpenSellOrders"
@@ -283,6 +283,8 @@ Boolean indicating whether the user was subscribed to the feed.
 ## `Market Delta - uE`
 ### Callback For
 `SubscribeToExchangeDeltas`
+### Notes
+`The Type key can be one of the following values: 0 = ADD, 1 = REMOVE, 2 = UPDATE`
 ### JSON Payload
 ```
 {
@@ -291,7 +293,7 @@ Boolean indicating whether the user was subscribed to the feed.
     Buys: 
     [
         {
-            Type     : string-enum (ADD | REMOVE | UPDATE),
+            Type     : int,
             Rate     : decimal,
             Quantity : decimal
         }
@@ -299,7 +301,7 @@ Boolean indicating whether the user was subscribed to the feed.
     Sells: 
     [
         {
-            Type     : string-enum (ADD | REMOVE | UPDATE),
+            Type     : int,
             Rate     : decimal,
             Quantity : decimal
         }
@@ -307,6 +309,7 @@ Boolean indicating whether the user was subscribed to the feed.
     Fills: 
     [
         {
+            FillId    : int,
             OrderType : string,
             Rate      : decimal,
             Quantity  : decimal,
@@ -338,37 +341,37 @@ Boolean indicating whether the user was subscribed to the feed.
 ## `Order Delta - uO`
 ### Callback For
 `Authenticate`
+### Notes
+`The Type key can be one of the following values: 0 = OPEN, 1 = PARTIAL, 2 = FILL, 3 = CANCEL`
 ### JSON Payload
 ```
 {
     AccountUuid : Guid,
     Nonce       : int,
-    Type        : (OPEN | PARTIAL | FILL | CANCEL),
+    Type        : int,
     Order: 
-    [
-        {
-            Uuid              : guid,
-            Id                : long,
-            OrderUuid         : guid,
-            Exchange          : string,
-            OrderType         : string,
-            Quantity          : decimal,
-            QuantityRemaining : decimal,
-            Limit             : decimal,
-            CommissionPaid    : decimal,
-            Price             : decimal,
-            PricePerUnit      : decimal,
-            Opened            : date,
-            Closed            : date,
-            IsOpen            : bool,
-            CancelInitiated   : bool,
-            ImmediateOrCancel : bool,
-            IsConditional     : bool,
-            Condition         : string,
-            ConditionTarget   : decimal,
-            Updated           : date
-        }
-    ]
+    {
+        Uuid              : guid,
+        Id                : long,
+        OrderUuid         : guid,
+        Exchange          : string,
+        OrderType         : string,
+        Quantity          : decimal,
+        QuantityRemaining : decimal,
+        Limit             : decimal,
+        CommissionPaid    : decimal,
+        Price             : decimal,
+        PricePerUnit      : decimal,
+        Opened            : date,
+        Closed            : date,
+        IsOpen            : bool,
+        CancelInitiated   : bool,
+        ImmediateOrCancel : bool,
+        IsConditional     : bool,
+        Condition         : string,
+        ConditionTarget   : decimal,
+        Updated           : date
+    }
 }
 ```
 
